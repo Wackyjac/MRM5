@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import matplotlib.pyplot as plt
 from mnistmodelfinal import Net
 
+
 n_epochs = 3
 batch_size_train = 64
 batch_size_test = 1000
@@ -15,6 +16,8 @@ learning_rate = 0.01
 momentum = 0.9
 log_interval = 10
 
+print(torch.cuda.is_available())
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 random_seed = 1
 torch.backends.cudnn.enabled = False
 torch.manual_seed(random_seed)
@@ -54,7 +57,7 @@ for i in range(3):
   plt.imshow(example_data[i][0], cmap='gray', interpolation='none')
   plt.title("Ground Truth: {}".format(example_targets[i]))
 
-network = Net()
+network = Net().to(device)
 optimizer = optim.SGD(network.parameters(), lr=learning_rate, momentum=momentum)
 
 train_losses = []
@@ -65,6 +68,8 @@ val_counter = [i*len(train_loader.dataset) for i in range(n_epochs + 1)]
 def train(epoch):
   network.train()
   for batch_idx, (data, target) in enumerate(train_loader):
+    data = data.to(device)
+    target = target.to(device)
     optimizer.zero_grad()
     output = network(data)
     loss = F.nll_loss(output, target)
@@ -76,8 +81,7 @@ def train(epoch):
         100. * batch_idx / len(train_loader), loss.item()))
       train_losses.append(loss.item())
       train_counter.append((batch_idx*64) + ((epoch-1)*len(train_loader.dataset)))
-      torch.save(network.state_dict(), 'C:\\Shaurya\\results\\model.pth')
-      torch.save(optimizer.state_dict(), 'C:\\Shaurya\\results\\optimizer.pth')
+    torch.save(network.state_dict(), 'C:\\Shaurya\\results\\model.pth')
 
 def validate():
   network.eval()
@@ -85,6 +89,8 @@ def validate():
   correct = 0
   with torch.no_grad():
     for data, target in val_loader:
+      data = data.to(device)
+      target = target.to(device)
       output = network(data)
       val_loss += F.nll_loss(output, target, size_average=False).item()
       pred = output.data.max(1, keepdim=True)[1]
@@ -97,7 +103,6 @@ def validate():
 
 
 if __name__ == "__main__":
-    validate()
     for epoch in range(1, n_epochs + 1):
         train(epoch)
         validate()
@@ -108,3 +113,4 @@ plt.scatter(val_counter, val_losses, color='red')
 plt.legend(['Train Loss', 'Val Loss'], loc='upper right')
 plt.xlabel('number of training examples seen')
 plt.ylabel('negative log likelihood loss')
+plt.show

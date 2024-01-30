@@ -16,6 +16,9 @@ test_loader = torch.utils.data.DataLoader(
                                torchvision.transforms.ToTensor(),
                              ])),
   batch_size=batch_size_test, shuffle=True)
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 test_data = torch.cat([data for data, _ in test_loader], dim=0)
 mean_value = test_data.mean()
 std_value = test_data.std()
@@ -33,17 +36,22 @@ test_loader = torch.utils.data.DataLoader(
 
 
 network = Net()
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+network.to(device)
 model_path = 'C:\\Shaurya\\results\\model.pth'
 network_state_dict = torch.load(model_path)
 network.load_state_dict(network_state_dict)
 
-
+labels=[]
+final_preds=[]
 def test():
   network.eval()
   test_loss = 0
   correct = 0
   with torch.no_grad():
     for data, target in test_loader:
+      data=data.to(device)
+      target=target.to(device)
       output = network(data)
       test_loss += F.nll_loss(output, target, size_average=False).item()
       pred = output.data.max(1, keepdim=True)[1]
@@ -52,7 +60,9 @@ def test():
   print('\nTest set: Avg. loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
     test_loss, correct, len(test_loader.dataset),
     100. * correct / len(test_loader.dataset)))
-  return pred,target
+  final_preds.extend(pred.cpu().numpy())
+  labels.extend(target.cpu().numpy())
+  return final_preds,labels
 
 pred,target=test()
 
