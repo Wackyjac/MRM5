@@ -7,7 +7,7 @@ from sklearn.metrics import f1_score, confusion_matrix
 
 
 warnings.filterwarnings("ignore", category=UserWarning)
-batch_size_test = 1000
+batch_size_test = 1
 random_seed=1
 torch.manual_seed(random_seed)
 test_loader = torch.utils.data.DataLoader(
@@ -44,12 +44,12 @@ network.load_state_dict(network_state_dict)
 
 labels=[]
 final_preds=[]
-def test():
+def test(loader):
   network.eval()
   test_loss = 0
   correct = 0
   with torch.no_grad():
-    for data, target in test_loader:
+    for data, target in loader:
       data=data.to(device)
       target=target.to(device)
       output = network(data)
@@ -64,7 +64,7 @@ def test():
   labels.extend(target.cpu().numpy())
   return final_preds,labels
 
-pred,target=test()
+pred,target=test(test_loader)
 
 print(f1_score(pred, target, average='macro'))
 print(f1_score(pred, target, average='micro'))
