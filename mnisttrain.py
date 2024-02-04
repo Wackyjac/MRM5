@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from mnistmodelfinal import Net
 
 
-n_epochs = 3
+n_epochs = 6
 batch_size_train = 64
 batch_size_test = 1000
 learning_rate = 0.01
