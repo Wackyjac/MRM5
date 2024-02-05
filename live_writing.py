@@ -26,7 +26,7 @@ noise_thresh = 600
 
 while True:
 	_, frame = cap.read()
-	frame = cv2.flip(frame, 1)
+	#frame = cv2.flip(frame, 1)
 
 	if canvas is not None:
 		canvas = np.zeros_like(frame)
@@ -39,7 +39,7 @@ while True:
 	
 	mask = cv2.inRange(hsv, lower_range, upper_range)
 	mask = cv2.erode(mask, kernel, iterations = 1)
-	mask = cv2.dilate(mask, kernel, iterations = 2)
+	mask = cv2.dilate(mask, kernel, iterations = 3)
 	
 	contours, heirarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 

@@ -68,7 +68,7 @@ def test(loader):
 def testlive(img):
   network.eval()
   with torch.no_grad():
-    img1 = img.float()
+    img1 = img/255.
     data = img1.to(device)
     output=network(data)
     pred = output.data.max(1, keepdim=True)[1]
